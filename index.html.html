@@ -817,7 +817,9 @@
             <p class="text-[#475569] text-sm">We typically respond within 30 minutes during business hours.</p>
           </div>
           
-          <form id="contact-form" class="space-y-4">
+          <form  action="https://formspree.io/f/xaqaqkpb" method="POST" class="space-y-4">
+            <input type="hidden" name="_subject" value="New Dany Plumbing Contact Form Submission">
+            <input type="hidden" name="_replyto" value="cawdacreates@gmail.com">
             <div class="space-y-1.5">
               <label for="name" class="text-xs font-semibold text-[#0f172a] uppercase tracking-[0.15em]">Full Name</label>
               <div class="relative">
@@ -957,7 +959,7 @@
 </div>
 
 <script>
-  lucide.createIcons();
+        lucide.createIcons();
   
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -968,43 +970,63 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
+  // Mobile menu toggle - copy and paste everything from here to the "</script" block. paste it underneath the same line of code that this instruction is written under that says " document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));"
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+
+  // FormSpree Contact Form Handler
   const contactForm = document.getElementById('contact-form');
   const formStatus = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn');
+  
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
       const originalText = submitBtn.textContent;
       submitBtn.textContent = 'Sending...';
       submitBtn.disabled = true;
+      formStatus.textContent = '';
+      formStatus.className = 'text-sm text-center pt-2 h-5';
+      
       try {
         const formData = new FormData(contactForm);
-        const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        const response = await fetch(contactForm.action, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            name: formData.get('name'),
-            email: formData.get('email'),
-            message: formData.get('message')
-          })
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
         });
-        const data = await response.json();
+        
         if (response.ok) {
-          formStatus.textContent = 'Message sent successfully!';
-          formStatus.className = 'text-sm text-green-600';
+          formStatus.textContent = '✓ Message sent successfully! We\'ll be in touch soon.';
+          formStatus.className = 'text-sm text-center pt-2 h-5 text-green-400';
           contactForm.reset();
         } else {
-          formStatus.textContent = data.error || 'Failed to send message.';
-          formStatus.className = 'text-sm text-red-600';
+          const errorData = await response.json();
+          formStatus.textContent = errorData.errors ? errorData.errors.map(e => e.message).join(', ') : 'Failed to send message. Please try again.';
+          formStatus.className = 'text-sm text-center pt-2 h-5 text-red-400';
         }
       } catch (error) {
-        formStatus.textContent = 'Network error. Please try again.';
-        formStatus.className = 'text-sm text-red-600';
+        formStatus.textContent = 'Network error. Please try again or call us directly.';
+        formStatus.className = 'text-sm text-center pt-2 h-5 text-red-400';
       } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
       }
     });
+  }
+
+  // Update copyright year
+  const yearSpan = document.getElementById('current-year');
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
   }
 </script>
 </body>
